@@ -14,15 +14,14 @@
     <p class="subtitle">Muestra el objeto más absurdo. La IA elegirá al ganador.</p>
   </div>
 
-  <!-- Panel de Cuenta/Usuario -->
-  <div class="user-panel" style="margin: 15px auto; text-align: center;">
+  <div class="user-panel">
     <div id="login-section">
-      <input type="text" id="usernameInput" placeholder="Escribe tu nombre de jugador..." style="padding: 10px; border-radius: 5px; border: 1px solid #00fff0; background: #111; color: #fff; text-align: center;">
-      <button onclick="guardarUsuario()" style="padding: 10px 15px; border-radius: 5px; background: #00fff0; color: #000; font-weight: bold; cursor: pointer;">GUARDAR PERFIL</button>
+      <input type="text" id="usernameInput" placeholder="Tu nombre de usuario...">
+      <button onclick="guardarUsuario()">GUARDAR PERFIL</button>
     </div>
-    <div id="profile-section" style="display: none; color: #00fff0; font-weight: bold; font-size: 1.2rem;">
-      Jugando como: <span id="displayMyName">---</span> 
-      <button onclick="cerrarSesion()" style="margin-left: 10px; padding: 5px 10px; background: #ff0055; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">Cambiar</button>
+    <div id="profile-section" style="display: none;">
+      Jugando como: <span id="displayMyName">---</span>
+      <button class="btn-change" onclick="cerrarSesion()">Cambiar</button>
     </div>
   </div>
 
@@ -65,6 +64,6 @@
 
   <canvas id="canvas" style="display:none;"></canvas>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
