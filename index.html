@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>El Objeto Más Random</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: #fff; padding: 20px; }
+    video { background: #000; border-radius: 12px; width: 100%; max-width: 400px; }
+    #timer { font-size: 3.5rem; color: #f39c12; margin: 10px 0; font-weight: bold; }
+    button { padding: 12px 24px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 6px; background: #27ae60; color: white; margin-bottom: 15px; }
+    #resultado { margin-top: 20px; font-size: 1.1rem; line-height: 1.5; background: #1e1e1e; padding: 15px; border-radius: 8px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  </style>
+</head>
+<body>
+  <h1>¿Quién tiene el objeto más random?</h1>
+  <div id="timer">--</div>
+  <video id="webcam" autoplay playsinline></video><br><br>
+  <button onclick="iniciarJuego()">¡Empezar Duelo!</button>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <div id="resultado">Presiona empezar para encender la cámara y el contador.</div>
+
+  <!-- Conecta el código JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
