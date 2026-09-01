@@ -1,8 +1,3 @@
-Puter exige iniciar sesión cuando se ejecuta desde un dominio externo como GitHub Pages. Para no crear cuentas, no usar API keys y evitar servidores caídos, la solución definitiva es usar un **Juez IA Local** que analiza el caos de píxeles (color, contraste y formas) directamente dentro de tu navegador.
-
-Reemplaza todo el contenido de tu **`script.js`** por este código (100% gratis, instantáneo y sin registro):
-
-```javascript
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const statusBox = document.getElementById('status');
@@ -87,7 +82,7 @@ function iniciarConteoDuelo() {
   }, 1000);
 }
 
-// 4. Analizador de Píxeles y Caos Visual (Visión IA en Cliente)
+// 4. Analizador de Píxeles (Procesamiento local sin servidores externos)
 function analizarPixeles(videoElem) {
   canvas.width = 160;
   canvas.height = 120;
@@ -108,10 +103,8 @@ function analizarPixeles(videoElem) {
     variacionColor += Math.abs(r - g) + Math.abs(g - b);
   }
 
-  // Generar puntuación basada en la complejidad visual + factor sorpresa aleatorio
   const factorCaos = (variacionColor / (data.length / 16)) * 2;
-  const puntajeBase = Math.min(95, Math.max(15, Math.floor(factorCaos + Math.random() * 40 + 20)));
-  return puntajeBase;
+  return Math.min(95, Math.max(15, Math.floor(factorCaos + Math.random() * 40 + 20)));
 }
 
 // 5. Evaluación instantánea
@@ -136,7 +129,7 @@ function evaluarDuelo() {
   }, 1200);
 }
 
-// 6. Formateo de puntuación e interfaz
+// 6. Formateo de interfaz y ganadores
 function procesarResultado(texto, p1, p2) {
   iaExplanation.innerText = texto;
   score1.innerText = `${p1}/100`;
@@ -162,5 +155,3 @@ function resetearEfectos() {
   winnerTitle.innerText = "ESPERANDO VEREDICTO...";
   iaExplanation.innerText = "";
 }
-
-```
