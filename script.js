@@ -12,22 +12,20 @@ const card2 = document.getElementById('card2');
 
 let miStream = null;
 let peer = null;
-let evaluando = false;
 
-// 1. Activar cámara local
+// 1. Inicializar cámara local
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => {
     miStream = stream;
     localVideo.srcObject = stream;
-    statusBox.innerText = "SISTEMA LISTO: Haz clic para buscar un rival.";
+    statusBox.innerText = "SISTEMA LISTO: Haz clic en el botón para buscar rival.";
   })
   .catch(() => {
-    statusBox.innerText = "ERROR: Permite el acceso a la cámara para jugar.";
+    statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
   });
 
 // 2. Conexión Multijugador (PeerJS)
 function iniciarBusqueda() {
-  if (evaluando) return;
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
 
@@ -78,91 +76,48 @@ function iniciarConteoDuelo() {
     } else {
       clearInterval(interval);
       countdownOverlay.classList.remove('active');
-      statusBox.innerText = "¡FOTO CAPTURADA! Enviando a la IA...";
+      statusBox.innerText = "¡FOTO CAPTURADA! Procesando con la IA...";
       evaluarDuelo();
     }
   }, 1000);
 }
 
-// 4. Capturar frame comprimido a 320x240
+// 4. Capturar frame de vídeo
 function capturarFrame(videoElem) {
   canvas.width = 320;
   canvas.height = 240;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(videoElem, 0, 0, 320, 240);
-  return canvas.toDataURL('image/jpeg', 0.4).split(',')[1];
+  return canvas.toDataURL('image/jpeg', 0.6);
 }
 
-// 5. Consulta a la IA con manejo de colas y reintentos automáticos
+// 5. Evaluación gratuita con visión mediante Puter.js
 async function evaluarDuelo() {
-  if (evaluando) return;
-  evaluando = true;
-
   const foto1 = capturarFrame(localVideo);
   const foto2 = remoteVideo.srcObject ? capturarFrame(remoteVideo) : foto1;
 
   iaExplanation.innerText = "Analizando objetos con visión artificial...";
 
-  const prompt = `Compara la Foto 1 (Jugador 1) y Foto 2 (Jugador 2).
+  const prompt = `Analiza el objeto de la Foto 1 (Jugador 1) y el de la Foto 2 (Jugador 2).
 Responde STRICTAMENTE en este formato de 3 líneas:
 PUNTAJES: [1-100] - [1-100]
 GANADOR: [Jugador 1 o Jugador 2]
-EXPLICACION: [Razón corta de por qué el objeto ganador es más 'random']`;
+EXPLICACION: [Razón corta y graciosa de por qué el objeto ganador es más 'random']`;
 
-  let intentos = 0;
-  const maxIntentos = 3;
+  try {
+    const respuesta = await puter.ai.chat(
+      prompt,
+      foto1,
+      foto2
+    );
 
-  while (intentos < maxIntentos) {
-    try {
-      const response = await fetch("https://text.pollinations.ai/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${foto1}` } },
-              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${foto2}` } }
-            ]
-          }],
-          seed: Math.floor(Math.random() * 9999)
-        })
-      });
-
-      const texto = await response.text();
-
-      // Si devuelve un error 429 de cola saturada, esperar y reintentar
-      if (response.status === 429 || texto.includes("Queue full") || texto.includes("Payment Required")) {
-        intentos++;
-        if (intentos < maxIntentos) {
-          iaExplanation.innerText = `Servidor ocupado. Reintentando evaluación (${intentos}/${maxIntentos})...`;
-          await new Promise(resolve => setTimeout(resolve, 2500));
-          continue;
-        } else {
-          iaExplanation.innerText = "El servidor de IA está muy saturado en este momento. Vuelve a hacer clic en PELEAR.";
-          evaluando = false;
-          return;
-        }
-      }
-
-      procesarResultado(texto);
-      evaluando = false;
-      return;
-
-    } catch (error) {
-      intentos++;
-      if (intentos < maxIntentos) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      } else {
-        iaExplanation.innerText = "Error de red al conectar con la IA. Intenta de nuevo.";
-        evaluando = false;
-      }
-    }
+    procesarResultado(respuesta.toString());
+  } catch (error) {
+    iaExplanation.innerText = "Error al conectar con el motor de IA. Inténtalo de nuevo.";
   }
 }
 
-// 6. Procesar y formatear respuesta
+// 6. Formateo de interfaz y puntuación
 function procesarResultado(texto) {
   iaExplanation.innerText = texto;
 
