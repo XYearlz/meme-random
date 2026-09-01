@@ -1,6 +1,3 @@
-// === PASO ÚNICO: Pon aquí tu API Key gratuita de Groq (console.groq.com) ===
-const API_KEY = "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";
-
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const statusBox = document.getElementById('status');
@@ -15,27 +12,29 @@ const card2 = document.getElementById('card2');
 
 let miStream = null;
 let peer = null;
+let evaluando = false;
 
-// 1. Inicializar cámara local
+// 1. Activar cámara local
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => {
     miStream = stream;
     localVideo.srcObject = stream;
-    statusBox.innerText = "SISTEMA LISTO: Clic en el botón para buscar rival.";
+    statusBox.innerText = "SISTEMA LISTO: Haz clic para buscar un rival.";
   })
   .catch(() => {
-    statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
+    statusBox.innerText = "ERROR: Permite el acceso a la cámara para jugar.";
   });
 
 // 2. Conexión Multijugador (PeerJS)
 function iniciarBusqueda() {
+  if (evaluando) return;
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
 
   peer = new Peer('duelo-random-room-99');
 
   peer.on('open', () => {
-    statusBox.innerText = "SALA CREADA: Esperando a que entre el Jugador 2...";
+    statusBox.innerText = "SALA CREADA: Esperando al Jugador 2...";
   });
 
   peer.on('error', (err) => {
@@ -56,7 +55,7 @@ function iniciarBusqueda() {
 function conectarComoJugador2() {
   peer = new Peer();
   peer.on('open', () => {
-    statusBox.innerText = "RIVAL ENCONTRADO. Conectando cámaras...";
+    statusBox.innerText = "RIVAL ENCONTRADO. Conectando vídeo...";
     const call = peer.call('duelo-random-room-99', miStream);
     call.on('stream', remoteStream => {
       remoteVideo.srcObject = remoteStream;
@@ -65,7 +64,7 @@ function conectarComoJugador2() {
   });
 }
 
-// 3. Temporizador en pantalla
+// 3. Temporizador de pantalla
 function iniciarConteoDuelo() {
   let tiempo = 5;
   countdownOverlay.classList.add('active');
@@ -79,70 +78,91 @@ function iniciarConteoDuelo() {
     } else {
       clearInterval(interval);
       countdownOverlay.classList.remove('active');
-      statusBox.innerText = "¡FOTO CAPTURADA! Procesando con la IA...";
+      statusBox.innerText = "¡FOTO CAPTURADA! Enviando a la IA...";
       evaluarDuelo();
     }
   }, 1000);
 }
 
-// 4. Capturar frame comprimido
+// 4. Capturar frame comprimido a 320x240
 function capturarFrame(videoElem) {
   canvas.width = 320;
   canvas.height = 240;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(videoElem, 0, 0, 320, 240);
-  return canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+  return canvas.toDataURL('image/jpeg', 0.4).split(',')[1];
 }
 
-// 5. Evaluación con Groq (Visión 100% Gratis)
+// 5. Consulta a la IA con manejo de colas y reintentos automáticos
 async function evaluarDuelo() {
+  if (evaluando) return;
+  evaluando = true;
+
   const foto1 = capturarFrame(localVideo);
   const foto2 = remoteVideo.srcObject ? capturarFrame(remoteVideo) : foto1;
 
   iaExplanation.innerText = "Analizando objetos con visión artificial...";
 
-  const prompt = `Analiza el objeto de la Foto 1 (Jugador 1) y el de la Foto 2 (Jugador 2).
-Responde exactamente con este formato de 3 líneas:
+  const prompt = `Compara la Foto 1 (Jugador 1) y Foto 2 (Jugador 2).
+Responde STRICTAMENTE en este formato de 3 líneas:
 PUNTAJES: [1-100] - [1-100]
 GANADOR: [Jugador 1 o Jugador 2]
-EXPLICACION: [Razón corta y graciosa de por qué el objeto ganador es más 'random']`;
+EXPLICACION: [Razón corta de por qué el objeto ganador es más 'random']`;
 
-  try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${API_KEY.trim()}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama-3.2-11b-vision-preview",
-        messages: [{
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${foto1}` } },
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${foto2}` } }
-          ]
-        }]
-      })
-    });
+  let intentos = 0;
+  const maxIntentos = 3;
 
-    const data = await response.json();
+  while (intentos < maxIntentos) {
+    try {
+      const response = await fetch("https://text.pollinations.ai/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${foto1}` } },
+              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${foto2}` } }
+            ]
+          }],
+          seed: Math.floor(Math.random() * 9999)
+        })
+      });
 
-    if (!response.ok || data.error) {
-      iaExplanation.innerText = `Error (${response.status}): Coloca tu clave válida de Groq en la primera línea del script.js.`;
+      const texto = await response.text();
+
+      // Si devuelve un error 429 de cola saturada, esperar y reintentar
+      if (response.status === 429 || texto.includes("Queue full") || texto.includes("Payment Required")) {
+        intentos++;
+        if (intentos < maxIntentos) {
+          iaExplanation.innerText = `Servidor ocupado. Reintentando evaluación (${intentos}/${maxIntentos})...`;
+          await new Promise(resolve => setTimeout(resolve, 2500));
+          continue;
+        } else {
+          iaExplanation.innerText = "El servidor de IA está muy saturado en este momento. Vuelve a hacer clic en PELEAR.";
+          evaluando = false;
+          return;
+        }
+      }
+
+      procesarResultado(texto);
+      evaluando = false;
       return;
-    }
 
-    if (data.choices && data.choices[0]) {
-      procesarResultado(data.choices[0].message.content);
+    } catch (error) {
+      intentos++;
+      if (intentos < maxIntentos) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } else {
+        iaExplanation.innerText = "Error de red al conectar con la IA. Intenta de nuevo.";
+        evaluando = false;
+      }
     }
-  } catch (error) {
-    iaExplanation.innerText = "Error de red al conectar con el servicio de IA.";
   }
 }
 
-// 6. Formato de puntuación y ganadores
+// 6. Procesar y formatear respuesta
 function procesarResultado(texto) {
   iaExplanation.innerText = texto;
 
