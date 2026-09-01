@@ -9,9 +9,43 @@ const winnerTitle = document.getElementById('winner-title');
 const iaExplanation = document.getElementById('ia-explanation');
 const card1 = document.getElementById('card1');
 const card2 = document.getElementById('card2');
+const nameP1 = document.getElementById('nameP1');
+const nameP2 = document.getElementById('nameP2');
 
 let miStream = null;
 let peer = null;
+let miNombre = "Jugador 1";
+let rivalNombre = "Jugador 2";
+
+// 0. Gestión de Nombre / Cuenta Local
+function cargarPerfil() {
+  const guardado = localStorage.getItem('duelo_username');
+  if (guardado) {
+    miNombre = guardado;
+    document.getElementById('displayMyName').innerText = miNombre;
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('profile-section').style.display = 'block';
+    nameP1.innerText = `${miNombre.toUpperCase()} (TÚ)`;
+  }
+}
+
+function guardarUsuario() {
+  const input = document.getElementById('usernameInput').value.trim();
+  if (input !== "") {
+    localStorage.setItem('duelo_username', input);
+    cargarPerfil();
+  }
+}
+
+function cerrarSesion() {
+  localStorage.removeItem('duelo_username');
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('profile-section').style.display = 'none';
+  miNombre = "Jugador 1";
+  nameP1.innerText = "JUGADOR 1 (TÚ)";
+}
+
+cargarPerfil();
 
 // 1. Inicializar cámara local
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
@@ -24,7 +58,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
   });
 
-// 2. Conexión Multijugador (PeerJS)
+// 2. Conexión Multijugador + Intercambio de nombres (PeerJS)
 function iniciarBusqueda() {
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
@@ -32,7 +66,7 @@ function iniciarBusqueda() {
   peer = new Peer('duelo-random-room-99');
 
   peer.on('open', () => {
-    statusBox.innerText = "SALA CREADA: Esperando al Jugador 2...";
+    statusBox.innerText = `SALA CREADA (${miNombre}): Esperando al Rival...`;
   });
 
   peer.on('error', (err) => {
@@ -41,11 +75,22 @@ function iniciarBusqueda() {
     }
   });
 
+  // Recibir llamada y conexión de datos
   peer.on('call', call => {
     call.answer(miStream);
     call.on('stream', remoteStream => {
       remoteVideo.srcObject = remoteStream;
       iniciarConteoDuelo();
+    });
+  });
+
+  peer.on('connection', conn => {
+    conn.on('data', data => {
+      if (data.nombre) {
+        rivalNombre = data.nombre;
+        nameP2.innerText = `${rivalNombre.toUpperCase()} (RIVAL)`;
+        conn.send({ nombre: miNombre });
+      }
     });
   });
 }
@@ -54,10 +99,24 @@ function conectarComoJugador2() {
   peer = new Peer();
   peer.on('open', () => {
     statusBox.innerText = "RIVAL ENCONTRADO. Conectando vídeo...";
+    
+    // Llamada de vídeo
     const call = peer.call('duelo-random-room-99', miStream);
     call.on('stream', remoteStream => {
       remoteVideo.srcObject = remoteStream;
       iniciarConteoDuelo();
+    });
+
+    // Conexión de datos para mandar el nombre
+    const conn = peer.connect('duelo-random-room-99');
+    conn.on('open', () => {
+      conn.send({ nombre: miNombre });
+    });
+    conn.on('data', data => {
+      if (data.nombre) {
+        rivalNombre = data.nombre;
+        nameP2.innerText = `${rivalNombre.toUpperCase()} (RIVAL)`;
+      }
     });
   });
 }
@@ -82,7 +141,7 @@ function iniciarConteoDuelo() {
   }, 1000);
 }
 
-// 4. Analizador de Píxeles (Procesamiento local sin servidores externos)
+// 4. Analizador de Píxeles (Procesamiento local)
 function analizarPixeles(videoElem) {
   canvas.width = 160;
   canvas.height = 120;
@@ -93,13 +152,11 @@ function analizarPixeles(videoElem) {
   const data = frame.data;
   
   let variacionColor = 0;
-  let brilloTotal = 0;
 
   for (let i = 0; i < data.length; i += 16) {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
-    brilloTotal += (r + g + b) / 3;
     variacionColor += Math.abs(r - g) + Math.abs(g - b);
   }
 
@@ -107,7 +164,7 @@ function analizarPixeles(videoElem) {
   return Math.min(95, Math.max(15, Math.floor(factorCaos + Math.random() * 40 + 20)));
 }
 
-// 5. Evaluación instantánea
+// 5. Evaluación e integración de nombres
 function evaluarDuelo() {
   const p1 = analizarPixeles(localVideo);
   const p2 = remoteVideo.srcObject ? analizarPixeles(remoteVideo) : Math.floor(Math.random() * 60 + 20);
@@ -120,25 +177,25 @@ function evaluarDuelo() {
   ];
 
   const razon = razones[Math.floor(Math.random() * razones.length)];
-  const ganador = p1 >= p2 ? "Jugador 1" : "Jugador 2";
+  const ganadorNombre = p1 >= p2 ? miNombre : rivalNombre;
 
-  const resultado = `PUNTAJES: ${p1} - ${p2}\nGANADOR: ${ganador}\nEXPLICACION: El objeto de ${ganador} ${razon}`;
+  const resultado = `PUNTAJES: ${p1} - ${p2}\nGANADOR: ${ganadorNombre}\nEXPLICACION: El objeto de ${ganadorNombre} ${razon}`;
 
   setTimeout(() => {
-    procesarResultado(resultado, p1, p2);
+    procesarResultado(resultado, p1, p2, ganadorNombre);
   }, 1200);
 }
 
-// 6. Formateo de interfaz y ganadores
-function procesarResultado(texto, p1, p2) {
+// 6. Mostrar veredicto
+function procesarResultado(texto, p1, p2, ganadorNombre) {
   iaExplanation.innerText = texto;
   score1.innerText = `${p1}/100`;
   score2.innerText = `${p2}/100`;
 
   if (p1 >= p2) {
-    marcarGanador(card1, "¡JUGADOR 1 GANA EL DUELO!");
+    marcarGanador(card1, `¡${ganadorNombre.toUpperCase()} GANA EL DUELO!`);
   } else {
-    marcarGanador(card2, "¡JUGADOR 2 GANA EL DUELO!");
+    marcarGanador(card2, `¡${ganadorNombre.toUpperCase()} GANA EL DUELO!`);
   }
 }
 
@@ -154,4 +211,6 @@ function resetearEfectos() {
   score2.innerText = "--/100";
   winnerTitle.innerText = "ESPERANDO VEREDICTO...";
   iaExplanation.innerText = "";
+  rivalNombre = "Jugador 2";
+  nameP2.innerText = "JUGADOR 2 (RIVAL)";
 }
