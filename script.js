@@ -1,6 +1,3 @@
-// === CONFIGURACIÓN Y VARIABLES GLOBALES ===
-const API_KEY = "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"; // Sustituye por tu clave sk-or-v1-...
-
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const statusBox = document.getElementById('status');
@@ -24,10 +21,10 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     statusBox.innerText = "SISTEMA LISTO: Clic en el botón para buscar rival.";
   })
   .catch(err => {
-    statusBox.innerText = "ERROR: Activa los permisos de la cámara en el navegador.";
+    statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
   });
 
-// 2. Conexión de jugadores mediante PeerJS
+// 2. Conexión Multijugador (PeerJS)
 function iniciarBusqueda() {
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
@@ -56,7 +53,7 @@ function iniciarBusqueda() {
 function conectarComoJugador2() {
   peer = new Peer();
   peer.on('open', () => {
-    statusBox.innerText = "RIVAL ENCONTRADO. Conectando cámara...";
+    statusBox.innerText = "RIVAL ENCONTRADO. Conectando cámaras...";
     const call = peer.call('duelo-random-room-99', miStream);
     call.on('stream', remoteStream => {
       remoteVideo.srcObject = remoteStream;
@@ -65,7 +62,7 @@ function conectarComoJugador2() {
   });
 }
 
-// 3. Temporizador de pantalla
+// 3. Temporizador en pantalla
 function iniciarConteoDuelo() {
   let tiempo = 5;
   countdownOverlay.classList.add('active');
@@ -85,7 +82,7 @@ function iniciarConteoDuelo() {
   }, 1000);
 }
 
-// 4. Capturar y comprimir imagen a Base64 (320x240 px, 50% calidad)
+// 4. Capturar frame comprimido de cámara
 function capturarFrame(videoElem) {
   canvas.width = 320;
   canvas.height = 240;
@@ -94,30 +91,24 @@ function capturarFrame(videoElem) {
   return canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
 }
 
-// 5. Evaluación multimodal con OpenRouter
+// 5. Evaluación con IA (vía Pollinations.ai para evitar errores de API Key y 404s)
 async function evaluarDuelo() {
   const foto1 = capturarFrame(localVideo);
   const foto2 = remoteVideo.srcObject ? capturarFrame(remoteVideo) : foto1;
 
-  iaExplanation.innerText = "Analizando objetos con IA...";
+  iaExplanation.innerText = "Analizando objetos con visión artificial...";
 
   const prompt = `Analiza el objeto de la Foto 1 (Jugador 1) y el de la Foto 2 (Jugador 2).
 Responde exactamente con este formato de 3 líneas:
 PUNTAJES: [1-100] - [1-100]
 GANADOR: [Jugador 1 o Jugador 2]
-EXPLICACION: [Razón corta y divertida de por qué el objeto ganador es más 'random']`;
+EXPLICACION: [Razón corta y graciosa de por qué el objeto ganador es más 'random']`;
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://text.pollinations.ai/", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${API_KEY.trim()}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": window.location.href,
-        "X-Title": "Duelo Random"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-lite-001",
         messages: [{
           role: "user",
           content: [
@@ -129,24 +120,14 @@ EXPLICACION: [Razón corta y divertida de por qué el objeto ganador es más 'ra
       })
     });
 
-    const data = await response.json();
-
-    if (data.error) {
-      iaExplanation.innerText = `Error de API (${data.error.code || 'Desconocido'}): ${data.error.message}`;
-      return;
-    }
-
-    if (data.choices && data.choices[0]) {
-      procesarResultado(data.choices[0].message.content);
-    } else {
-      iaExplanation.innerText = "La IA no devolvió una respuesta válida. Reintenta el duelo.";
-    }
+    const texto = await response.text();
+    procesarResultado(texto);
   } catch (error) {
-    iaExplanation.innerText = "Error de conexión en la red o bloqueo de la API.";
+    iaExplanation.innerText = "Error de red al conectar con el servidor de la IA.";
   }
 }
 
-// 6. Formateo de puntuación e interfaz
+// 6. Formato de puntuación y ganadores
 function procesarResultado(texto) {
   iaExplanation.innerText = texto;
 
