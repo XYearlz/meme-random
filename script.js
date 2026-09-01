@@ -1,5 +1,5 @@
-// === CONFIGURACIÓN ===
-const API_KEY = "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"; // Coloca aquí tu clave de openrouter.ai
+// === CONFIGURACIÓN Y VARIABLES GLOBALES ===
+const API_KEY = "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"; // Sustituye por tu clave sk-or-v1-...
 
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
@@ -16,7 +16,7 @@ const card2 = document.getElementById('card2');
 let miStream = null;
 let peer = null;
 
-// 1. Iniciar cámara local
+// 1. Inicializar cámara local
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => {
     miStream = stream;
@@ -24,15 +24,14 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     statusBox.innerText = "SISTEMA LISTO: Clic en el botón para buscar rival.";
   })
   .catch(err => {
-    statusBox.innerText = "ERROR: Permite acceso a la cámara para jugar.";
+    statusBox.innerText = "ERROR: Activa los permisos de la cámara en el navegador.";
   });
 
-// 2. Conexión de jugadores con PeerJS
+// 2. Conexión de jugadores mediante PeerJS
 function iniciarBusqueda() {
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
 
-  // Intenta unirse a una sala pública estática
   peer = new Peer('duelo-random-room-99');
 
   peer.on('open', () => {
@@ -41,7 +40,6 @@ function iniciarBusqueda() {
 
   peer.on('error', (err) => {
     if (err.type === 'unavailable-id') {
-      // Si la sala está ocupada, entra como Jugador 2
       conectarComoJugador2();
     }
   });
@@ -56,9 +54,9 @@ function iniciarBusqueda() {
 }
 
 function conectarComoJugador2() {
-  peer = new Peer(); // ID dinámico
+  peer = new Peer();
   peer.on('open', () => {
-    statusBox.innerText = "RIVAL ENCONTRADO. Conectando vídeo...";
+    statusBox.innerText = "RIVAL ENCONTRADO. Conectando cámara...";
     const call = peer.call('duelo-random-room-99', miStream);
     call.on('stream', remoteStream => {
       remoteVideo.srcObject = remoteStream;
@@ -67,7 +65,7 @@ function conectarComoJugador2() {
   });
 }
 
-// 3. Conteo regresivo
+// 3. Temporizador de pantalla
 function iniciarConteoDuelo() {
   let tiempo = 5;
   countdownOverlay.classList.add('active');
@@ -81,44 +79,45 @@ function iniciarConteoDuelo() {
     } else {
       clearInterval(interval);
       countdownOverlay.classList.remove('active');
-      statusBox.innerText = "¡CAPTURA REALIZADA! La IA está juzgando...";
+      statusBox.innerText = "¡FOTO CAPTURADA! Procesando con la IA...";
       evaluarDuelo();
     }
   }, 1000);
 }
 
-// 4. Capturar frame de video a Base64
+// 4. Capturar y comprimir imagen a Base64 (320x240 px, 50% calidad)
 function capturarFrame(videoElem) {
-  canvas.width = videoElem.videoWidth || 320;
-  canvas.height = videoElem.videoHeight || 240;
+  canvas.width = 320;
+  canvas.height = 240;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(videoElem, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL('image/jpeg').split(',')[1];
+  ctx.drawImage(videoElem, 0, 0, 320, 240);
+  return canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
 }
 
-// 5. Consulta e interpretación de la IA
+// 5. Evaluación multimodal con OpenRouter
 async function evaluarDuelo() {
   const foto1 = capturarFrame(localVideo);
-  // Si no hay video remoto (ej. prueba en solitario), usa el mismo video local para comparar
   const foto2 = remoteVideo.srcObject ? capturarFrame(remoteVideo) : foto1;
 
-  iaExplanation.innerText = "Analizando grado de aleatoriedad de los objetos con visión artificial...";
+  iaExplanation.innerText = "Analizando objetos con IA...";
 
-  const prompt = `Analiza el objeto mostrado en la Imagen 1 (Jugador 1) y el de la Imagen 2 (Jugador 2).
+  const prompt = `Analiza el objeto de la Foto 1 (Jugador 1) y el de la Foto 2 (Jugador 2).
 Responde exactamente con este formato de 3 líneas:
-PUNTAJES: [puntos Jugador 1 1-100] - [puntos Jugador 2 1-100]
+PUNTAJES: [1-100] - [1-100]
 GANADOR: [Jugador 1 o Jugador 2]
-EXPLICACION: [Breve explicación graciosa de por qué el objeto ganador es más 'random']`;
+EXPLICACION: [Razón corta y divertida de por qué el objeto ganador es más 'random']`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${API_KEY}`,
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${API_KEY.trim()}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": window.location.href,
+        "X-Title": "Duelo Random"
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.2-11b-vision-instruct:free",
+        model: "google/gemini-2.0-flash-lite-001",
         messages: [{
           role: "user",
           content: [
@@ -131,32 +130,40 @@ EXPLICACION: [Breve explicación graciosa de por qué el objeto ganador es más 
     });
 
     const data = await response.json();
-    const textoRespuesta = data.choices[0].message.content;
 
-    procesarResultado(textoRespuesta);
+    if (data.error) {
+      iaExplanation.innerText = `Error de API (${data.error.code || 'Desconocido'}): ${data.error.message}`;
+      return;
+    }
+
+    if (data.choices && data.choices[0]) {
+      procesarResultado(data.choices[0].message.content);
+    } else {
+      iaExplanation.innerText = "La IA no devolvió una respuesta válida. Reintenta el duelo.";
+    }
   } catch (error) {
-    iaExplanation.innerText = "Error de conexión con la IA. Asegúrate de colocar tu API Key válida en script.js.";
+    iaExplanation.innerText = "Error de conexión en la red o bloqueo de la API.";
   }
 }
 
+// 6. Formateo de puntuación e interfaz
 function procesarResultado(texto) {
   iaExplanation.innerText = texto;
 
-  // Extraer números si la IA respondió con el formato sugerido
   const matchPuntos = texto.match(/PUNTAJES:\s*(\d+)\s*-\s*(\d+)/i);
   if (matchPuntos) {
-    const p1 = matchPuntos[1];
-    const p2 = matchPuntos[2];
+    const p1 = parseInt(matchPuntos[1]);
+    const p2 = parseInt(matchPuntos[2]);
     score1.innerText = `${p1}/100`;
     score2.innerText = `${p2}/100`;
 
-    if (parseInt(p1) >= parseInt(p2)) {
+    if (p1 >= p2) {
       marcarGanador(card1, "¡JUGADOR 1 GANA EL DUELO!");
     } else {
       marcarGanador(card2, "¡JUGADOR 2 GANA EL DUELO!");
     }
   } else {
-    winnerTitle.innerText = "VEREDICTO DE LA IA";
+    winnerTitle.innerText = "VEREDICTO IA";
   }
 }
 
