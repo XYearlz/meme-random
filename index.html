@@ -2,24 +2,39 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>El Objeto Más Random</title>
+  <title>Duelo de Objetos Random</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: #fff; padding: 20px; }
-    video { background: #000; border-radius: 12px; width: 100%; max-width: 400px; }
-    #timer { font-size: 3.5rem; color: #f39c12; margin: 10px 0; font-weight: bold; }
-    button { padding: 12px 24px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 6px; background: #27ae60; color: white; margin-bottom: 15px; }
-    #resultado { margin-top: 20px; font-size: 1.1rem; line-height: 1.5; background: #1e1e1e; padding: 15px; border-radius: 8px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    body { font-family: Arial, sans-serif; background: #111; color: #fff; text-align: center; margin: 0; padding: 20px; }
+    h1 { margin-bottom: 5px; }
+    #status { font-size: 1.2rem; color: #f1c40f; margin: 15px 0; font-weight: bold; }
+    .duel-arena { display: flex; justify-content: center; gap: 20px; max-width: 900px; margin: 0 auto; }
+    .card { flex: 1; background: #222; padding: 15px; border-radius: 12px; border: 2px solid #333; }
+    video { width: 100%; height: 260px; object-fit: cover; background: #000; border-radius: 8px; }
+    button { padding: 14px 28px; font-size: 1.1rem; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    #resultado { margin-top: 20px; padding: 15px; background: #1a1a1a; border-radius: 8px; font-size: 1.1rem; }
   </style>
 </head>
 <body>
-  <h1>¿Quién tiene el objeto más random?</h1>
-  <div id="timer">--</div>
-  <video id="webcam" autoplay playsinline></video><br><br>
-  <button onclick="iniciarJuego()">¡Empezar Duelo!</button>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <div id="resultado">Presiona empezar para encender la cámara y el contador.</div>
 
-  <!-- Conecta el código JavaScript -->
+  <h1>DUELO RANDOM 1v1</h1>
+  <div id="status">Cargando cámara...</div>
+  <button id="btnConectar" onclick="iniciarBusqueda()">¡BUSCAR RIVAL Y EMPEZAR!</button>
+
+  <div class="duel-arena">
+    <div class="card">
+      <h3>TÚ</h3>
+      <video id="localVideo" autoplay playsinline muted></video>
+    </div>
+    <div class="card">
+      <h3>RIVAL</h3>
+      <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+  </div>
+
+  <div id="resultado"></div>
+  <canvas id="canvas" style="display:none;"></canvas>
+
   <script src="script.js"></script>
 </body>
 </html>
