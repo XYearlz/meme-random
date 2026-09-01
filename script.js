@@ -18,7 +18,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => {
     miStream = stream;
     localVideo.srcObject = stream;
-    statusBox.innerText = "SISTEMA LISTO: Haz clic en el botón para buscar rival.";
+    statusBox.innerText = "SISTEMA LISTO: Clic en el botón para buscar rival.";
   })
   .catch(() => {
     statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
@@ -72,11 +72,11 @@ function iniciarConteoDuelo() {
     tiempo--;
     if (tiempo > 0) {
       countdownOverlay.innerText = tiempo;
-      statusBox.innerText = `¡MUESTRAN SU OBJETO EN ${tiempo}!`;
+      statusBox.innerText = `¡MUESTREN SU OBJETO EN ${tiempo}!`;
     } else {
       clearInterval(interval);
       countdownOverlay.classList.remove('active');
-      statusBox.innerText = "¡FOTO CAPTURADA! Procesando con la IA...";
+      statusBox.innerText = "¡FOTO CAPTURADA! Procesando con IA...";
       evaluarDuelo();
     }
   }, 1000);
@@ -88,10 +88,10 @@ function capturarFrame(videoElem) {
   canvas.height = 240;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(videoElem, 0, 0, 320, 240);
-  return canvas.toDataURL('image/jpeg', 0.6);
+  return canvas.toDataURL('image/jpeg', 0.5);
 }
 
-// 5. Evaluación gratuita con visión mediante Puter.js
+// 5. Evaluación libre mediante Puter.js
 async function evaluarDuelo() {
   const foto1 = capturarFrame(localVideo);
   const foto2 = remoteVideo.srcObject ? capturarFrame(remoteVideo) : foto1;
@@ -99,25 +99,20 @@ async function evaluarDuelo() {
   iaExplanation.innerText = "Analizando objetos con visión artificial...";
 
   const prompt = `Analiza el objeto de la Foto 1 (Jugador 1) y el de la Foto 2 (Jugador 2).
-Responde STRICTAMENTE en este formato de 3 líneas:
+Responde STRICTAMENTE con este formato de 3 líneas:
 PUNTAJES: [1-100] - [1-100]
 GANADOR: [Jugador 1 o Jugador 2]
 EXPLICACION: [Razón corta y graciosa de por qué el objeto ganador es más 'random']`;
 
   try {
-    const respuesta = await puter.ai.chat(
-      prompt,
-      foto1,
-      foto2
-    );
-
-    procesarResultado(respuesta.toString());
+    const response = await puter.ai.chat(prompt, foto1, foto2);
+    procesarResultado(response.toString());
   } catch (error) {
-    iaExplanation.innerText = "Error al conectar con el motor de IA. Inténtalo de nuevo.";
+    iaExplanation.innerText = "Error al conectar con la IA. Revisa que agregaste la etiqueta del script de Puter en index.html.";
   }
 }
 
-// 6. Formateo de interfaz y puntuación
+// 6. Formateo de puntuación e interfaz
 function procesarResultado(texto) {
   iaExplanation.innerText = texto;
 
