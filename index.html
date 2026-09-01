@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Duelo Random 1v1 - IA Judge</title>
   <link rel="stylesheet" href="style.css">
-  <!-- PeerJS para streaming WebRTC entre jugadores -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <!-- Puter.js para la IA de visión sin API Key -->
-  <script src="https://js.puter.com/v2/"></script>
 </head>
 <body>
 
@@ -24,7 +21,6 @@
   </div>
 
   <div class="duel-arena">
-    <!-- Card Jugador 1 (Tú) -->
     <div class="player-card card-player1" id="card1">
       <div class="player-header">
         <span class="badge badge-p1">JUGADOR 1 (TÚ)</span>
@@ -38,7 +34,6 @@
 
     <div class="vs-divider">VS</div>
 
-    <!-- Card Jugador 2 (Rival) -->
     <div class="player-card card-player2" id="card2">
       <div class="player-header">
         <span class="badge badge-p2">JUGADOR 2 (RIVAL)</span>
@@ -51,13 +46,11 @@
     </div>
   </div>
 
-  <!-- Caja de Resultado de la IA -->
   <div id="result-box" class="result-box">
     <h2 id="winner-title">ESPERANDO DUELO...</h2>
     <div id="ia-explanation">Presiona el botón para conectar con un rival.</div>
   </div>
 
-  <!-- Canvas oculto para procesar capturas -->
   <canvas id="canvas" style="display:none;"></canvas>
 
   <script src="script.js"></script>
