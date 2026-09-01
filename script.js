@@ -1,5 +1,5 @@
 // === CONFIGURACIÓN ===
-const API_KEY = "TU_OPENROUTER_KEY_AQUI"; // Coloca aquí tu clave de openrouter.ai
+const API_KEY = "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"; // Coloca aquí tu clave de openrouter.ai
 
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
