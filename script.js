@@ -1,3 +1,6 @@
+// === PASO ÚNICO: Pon aquí tu API Key gratuita de Groq (console.groq.com) ===
+const API_KEY = "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";
+
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const statusBox = document.getElementById('status');
@@ -20,7 +23,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     localVideo.srcObject = stream;
     statusBox.innerText = "SISTEMA LISTO: Clic en el botón para buscar rival.";
   })
-  .catch(err => {
+  .catch(() => {
     statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
   });
 
@@ -82,7 +85,7 @@ function iniciarConteoDuelo() {
   }, 1000);
 }
 
-// 4. Capturar frame comprimido de cámara
+// 4. Capturar frame comprimido
 function capturarFrame(videoElem) {
   canvas.width = 320;
   canvas.height = 240;
@@ -91,7 +94,7 @@ function capturarFrame(videoElem) {
   return canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
 }
 
-// 5. Evaluación con IA (vía Pollinations.ai para evitar errores de API Key y 404s)
+// 5. Evaluación con Groq (Visión 100% Gratis)
 async function evaluarDuelo() {
   const foto1 = capturarFrame(localVideo);
   const foto2 = remoteVideo.srcObject ? capturarFrame(remoteVideo) : foto1;
@@ -105,10 +108,14 @@ GANADOR: [Jugador 1 o Jugador 2]
 EXPLICACION: [Razón corta y graciosa de por qué el objeto ganador es más 'random']`;
 
   try {
-    const response = await fetch("https://text.pollinations.ai/", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Authorization": `Bearer ${API_KEY.trim()}`,
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
+        model: "llama-3.2-11b-vision-preview",
         messages: [{
           role: "user",
           content: [
@@ -120,10 +127,18 @@ EXPLICACION: [Razón corta y graciosa de por qué el objeto ganador es más 'ran
       })
     });
 
-    const texto = await response.text();
-    procesarResultado(texto);
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      iaExplanation.innerText = `Error (${response.status}): Coloca tu clave válida de Groq en la primera línea del script.js.`;
+      return;
+    }
+
+    if (data.choices && data.choices[0]) {
+      procesarResultado(data.choices[0].message.content);
+    }
   } catch (error) {
-    iaExplanation.innerText = "Error de red al conectar con el servidor de la IA.";
+    iaExplanation.innerText = "Error de red al conectar con el servicio de IA.";
   }
 }
 
