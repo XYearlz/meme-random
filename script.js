@@ -1,3 +1,20 @@
+// Exposición de funciones al entorno global
+window.guardarUsuario = function() {
+  const input = document.getElementById('usernameInput').value.trim();
+  if (input !== "") {
+    localStorage.setItem('duelo_username', input);
+    cargarPerfil();
+  }
+};
+
+window.cerrarSesion = function() {
+  localStorage.removeItem('duelo_username');
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('profile-section').style.display = 'none';
+  miNombre = "Jugador 1";
+  document.getElementById('nameP1').innerText = "JUGADOR 1 (TÚ)";
+};
+
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const statusBox = document.getElementById('status');
@@ -17,7 +34,6 @@ let peer = null;
 let miNombre = "Jugador 1";
 let rivalNombre = "Jugador 2";
 
-// 0. Gestión de Nombre / Cuenta Local
 function cargarPerfil() {
   const guardado = localStorage.getItem('duelo_username');
   if (guardado) {
@@ -29,25 +45,9 @@ function cargarPerfil() {
   }
 }
 
-function guardarUsuario() {
-  const input = document.getElementById('usernameInput').value.trim();
-  if (input !== "") {
-    localStorage.setItem('duelo_username', input);
-    cargarPerfil();
-  }
-}
-
-function cerrarSesion() {
-  localStorage.removeItem('duelo_username');
-  document.getElementById('login-section').style.display = 'block';
-  document.getElementById('profile-section').style.display = 'none';
-  miNombre = "Jugador 1";
-  nameP1.innerText = "JUGADOR 1 (TÚ)";
-}
-
 cargarPerfil();
 
-// 1. Inicializar cámara local
+// 1. Inicialización de cámara
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => {
     miStream = stream;
@@ -58,8 +58,8 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
   });
 
-// 2. Conexión Multijugador + Intercambio de nombres (PeerJS)
-function iniciarBusqueda() {
+// 2. Multijugador PeerJS
+window.iniciarBusqueda = function() {
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
 
@@ -75,7 +75,6 @@ function iniciarBusqueda() {
     }
   });
 
-  // Recibir llamada y conexión de datos
   peer.on('call', call => {
     call.answer(miStream);
     call.on('stream', remoteStream => {
@@ -93,21 +92,19 @@ function iniciarBusqueda() {
       }
     });
   });
-}
+};
 
 function conectarComoJugador2() {
   peer = new Peer();
   peer.on('open', () => {
     statusBox.innerText = "RIVAL ENCONTRADO. Conectando vídeo...";
     
-    // Llamada de vídeo
     const call = peer.call('duelo-random-room-99', miStream);
     call.on('stream', remoteStream => {
       remoteVideo.srcObject = remoteStream;
       iniciarConteoDuelo();
     });
 
-    // Conexión de datos para mandar el nombre
     const conn = peer.connect('duelo-random-room-99');
     conn.on('open', () => {
       conn.send({ nombre: miNombre });
@@ -141,7 +138,7 @@ function iniciarConteoDuelo() {
   }, 1000);
 }
 
-// 4. Analizador de Píxeles (Procesamiento local)
+// 4. Analizador de Píxeles local
 function analizarPixeles(videoElem) {
   canvas.width = 160;
   canvas.height = 120;
@@ -186,7 +183,7 @@ function evaluarDuelo() {
   }, 1200);
 }
 
-// 6. Mostrar veredicto
+// 6. Veredicto final
 function procesarResultado(texto, p1, p2, ganadorNombre) {
   iaExplanation.innerText = texto;
   score1.innerText = `${p1}/100`;
