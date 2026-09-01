@@ -1,179 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 body {
-  background-color: #0b0c10;
-  color: #ffffff;
+  background: #080c0a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 245, 160, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.08) 0px, transparent 50%);
+  color: #ecfdf5;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 20px;
+  padding: 30px 20px;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 
 .glitch-title {
-  font-size: 2.2rem;
-  color: #00fff0;
-  text-shadow: 0 0 10px #00fff0, 0 0 20px #00fff0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #00f5a0 0%, #00d2ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 245, 160, 0.3);
 }
 
 .glitch-title span {
-  color: #ff0055;
-  text-shadow: 0 0 10px #ff0055;
+  background: linear-gradient(135deg, #00d2ff 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-  color: #c5c6c7;
-  font-size: 0.9rem;
-  margin-top: 5px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin-top: 6px;
 }
 
+/* Panel de Usuario */
 .user-panel {
-  background: rgba(31, 40, 51, 0.8);
-  border: 1px solid #45a29e;
-  padding: 10px 20px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  background: rgba(15, 23, 20, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 245, 160, 0.15);
+  padding: 12px 24px;
+  border-radius: 20px;
+  margin-bottom: 25px;
   text-align: center;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
 .user-panel input {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #00fff0;
-  background: #0b0c10;
-  color: #fff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 245, 160, 0.25);
+  background: rgba(8, 12, 10, 0.8);
+  color: #00f5a0;
   outline: none;
   text-align: center;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.user-panel input:focus {
+  border-color: #00f5a0;
+  box-shadow: 0 0 15px rgba(0, 245, 160, 0.2);
 }
 
 .user-panel button {
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: 12px;
   border: none;
-  background: #00fff0;
-  color: #0b0c10;
-  font-weight: bold;
+  background: #00f5a0;
+  color: #062016;
+  font-weight: 700;
   cursor: pointer;
-  margin-left: 5px;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+}
+
+.user-panel button:hover {
+  background: #00d2ff;
+  transform: translateY(-1px);
 }
 
 .btn-change {
-  background: #ff0055 !important;
-  color: #fff !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
 }
 
+.btn-change:hover {
+  background: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Panel de Control */
 .control-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 30px;
   width: 100%;
   max-width: 600px;
 }
 
 .status-box {
-  background: #1f2833;
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid #66fcf1;
-  color: #66fcf1;
+  background: rgba(0, 245, 160, 0.05);
+  padding: 8px 20px;
+  border-radius: 99px;
+  border: 1px solid rgba(0, 245, 160, 0.2);
+  color: #00f5a0;
   font-size: 0.85rem;
-  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 #btnDuelo {
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  background: linear-gradient(45deg, #ff0055, #7928ca);
-  color: #fff;
+  padding: 16px 36px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00f5a0 0%, #00d2ff 100%);
+  color: #041f16;
   border: none;
-  border-radius: 30px;
+  border-radius: 99px;
   cursor: pointer;
-  box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
-  transition: transform 0.2s;
+  box-shadow: 0 10px 25px -5px rgba(0, 245, 160, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
 }
 
 #btnDuelo:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 15px 35px -5px rgba(0, 245, 160, 0.6);
 }
 
 .countdown-overlay {
   display: none;
-  font-size: 3rem;
-  color: #ff0055;
-  font-weight: bold;
+  font-size: 3.5rem;
+  color: #00f5a0;
+  font-weight: 800;
+  text-shadow: 0 0 20px rgba(0, 245, 160, 0.5);
 }
 
 .countdown-overlay.active {
   display: block;
 }
 
+/* Arena de Duelo */
 .duel-arena {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 25px;
   width: 100%;
-  max-width: 900px;
+  max-width: 950px;
 }
 
 .player-card {
-  background: #1f2833;
-  border: 2px solid #45a29e;
-  border-radius: 12px;
-  padding: 10px;
-  width: 320px;
-  position: relative;
-  transition: border-color 0.3s;
+  background: rgba(15, 23, 20, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 16px;
+  width: 340px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .player-card.winner {
-  border-color: #ff0055;
-  box-shadow: 0 0 25px #ff0055;
+  border-color: #00f5a0;
+  box-shadow: 0 0 35px rgba(0, 245, 160, 0.3);
+  transform: translateY(-4px);
 }
 
 .player-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding: 0 4px;
 }
 
 .badge {
-  font-size: 0.8rem;
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 99px;
+  letter-spacing: 0.5px;
 }
 
-.badge-p1 { background: #00fff0; color: #000; }
-.badge-p2 { background: #ff0055; color: #fff; }
+.badge-p1 { 
+  background: rgba(0, 245, 160, 0.15); 
+  color: #00f5a0; 
+  border: 1px solid rgba(0, 245, 160, 0.3);
+}
+
+.badge-p2 { 
+  background: rgba(0, 210, 255, 0.15); 
+  color: #00d2ff; 
+  border: 1px solid rgba(0, 210, 255, 0.3);
+}
 
 .score-tag {
-  font-weight: bold;
-  color: #66fcf1;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #ecfdf5;
 }
 
 .video-wrapper {
   position: relative;
   width: 100%;
-  height: 220px;
-  background: #000;
-  border-radius: 8px;
+  height: 230px;
+  background: #040706;
+  border-radius: 16px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 video {
@@ -183,31 +236,44 @@ video {
 }
 
 .vs-divider {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #ff0055;
-  text-shadow: 0 0 10px #ff0055;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.03);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Caja de Resultados */
 .result-box {
-  margin-top: 25px;
-  background: #1f2833;
-  border: 1px solid #66fcf1;
-  border-radius: 10px;
-  padding: 15px;
+  margin-top: 30px;
+  background: rgba(15, 23, 20, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 245, 160, 0.2);
+  border-radius: 20px;
+  padding: 20px 25px;
   width: 100%;
   max-width: 600px;
   text-align: center;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
 }
 
 #winner-title {
-  color: #00fff0;
-  font-size: 1.2rem;
+  color: #00f5a0;
+  font-size: 1.25rem;
+  font-weight: 800;
   margin-bottom: 8px;
+  letter-spacing: -0.3px;
 }
 
 #ia-explanation {
-  color: #c5c6c7;
+  color: #94a3b8;
   font-size: 0.95rem;
+  line-height: 1.5;
   white-space: pre-line;
 }
