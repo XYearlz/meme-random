@@ -14,6 +14,18 @@
     <p class="subtitle">Muestra el objeto más absurdo. La IA elegirá al ganador.</p>
   </div>
 
+  <!-- Panel de Cuenta/Usuario -->
+  <div class="user-panel" style="margin: 15px auto; text-align: center;">
+    <div id="login-section">
+      <input type="text" id="usernameInput" placeholder="Escribe tu nombre de jugador..." style="padding: 10px; border-radius: 5px; border: 1px solid #00fff0; background: #111; color: #fff; text-align: center;">
+      <button onclick="guardarUsuario()" style="padding: 10px 15px; border-radius: 5px; background: #00fff0; color: #000; font-weight: bold; cursor: pointer;">GUARDAR PERFIL</button>
+    </div>
+    <div id="profile-section" style="display: none; color: #00fff0; font-weight: bold; font-size: 1.2rem;">
+      Jugando como: <span id="displayMyName">---</span> 
+      <button onclick="cerrarSesion()" style="margin-left: 10px; padding: 5px 10px; background: #ff0055; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">Cambiar</button>
+    </div>
+  </div>
+
   <div class="control-panel">
     <div id="status" class="status-box">Cargando cámara local...</div>
     <div id="countdown-overlay" class="countdown-hidden">5</div>
@@ -23,7 +35,7 @@
   <div class="duel-arena">
     <div class="player-card card-player1" id="card1">
       <div class="player-header">
-        <span class="badge badge-p1">JUGADOR 1 (TÚ)</span>
+        <span class="badge badge-p1" id="nameP1">JUGADOR 1 (TÚ)</span>
         <span class="score-tag" id="score1">--/100</span>
       </div>
       <div class="video-wrapper">
@@ -36,7 +48,7 @@
 
     <div class="player-card card-player2" id="card2">
       <div class="player-header">
-        <span class="badge badge-p2">JUGADOR 2 (RIVAL)</span>
+        <span class="badge badge-p2" id="nameP2">JUGADOR 2 (RIVAL)</span>
         <span class="score-tag" id="score2">--/100</span>
       </div>
       <div class="video-wrapper">
