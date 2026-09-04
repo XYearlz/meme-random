@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
 
 * {
   box-sizing: border-box;
@@ -44,7 +44,6 @@ body {
 .subtitle {
   color: #94a3b8;
   font-size: 0.95rem;
-  font-weight: 400;
   margin-top: 6px;
 }
 
@@ -69,12 +68,6 @@ body {
   outline: none;
   text-align: center;
   font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.user-panel input:focus {
-  border-color: #00f5a0;
-  box-shadow: 0 0 15px rgba(0, 245, 160, 0.2);
 }
 
 .user-panel button {
@@ -100,10 +93,6 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.3) !important;
 }
 
-.btn-change:hover {
-  background: rgba(239, 68, 68, 0.4) !important;
-}
-
 /* Panel de Control */
 .control-panel {
   display: flex;
@@ -123,7 +112,6 @@ body {
   color: #00f5a0;
   font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.3px;
 }
 
 #btnDuelo {
@@ -136,8 +124,7 @@ body {
   border-radius: 99px;
   cursor: pointer;
   box-shadow: 0 10px 25px -5px rgba(0, 245, 160, 0.4);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
 }
 
 #btnDuelo:hover {
@@ -176,7 +163,7 @@ body {
   padding: 16px;
   width: 340px;
   box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 }
 
 .player-card.winner {
@@ -190,7 +177,6 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  padding: 0 4px;
 }
 
 .badge {
@@ -198,7 +184,6 @@ body {
   font-weight: 800;
   padding: 6px 12px;
   border-radius: 99px;
-  letter-spacing: 0.5px;
 }
 
 .badge-p1 { 
@@ -249,7 +234,6 @@ video {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Caja de Resultados */
 .result-box {
   margin-top: 30px;
   background: rgba(15, 23, 20, 0.7);
@@ -260,7 +244,6 @@ video {
   width: 100%;
   max-width: 600px;
   text-align: center;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
 }
 
 #winner-title {
@@ -268,7 +251,6 @@ video {
   font-size: 1.25rem;
   font-weight: 800;
   margin-bottom: 8px;
-  letter-spacing: -0.3px;
 }
 
 #ia-explanation {
@@ -276,4 +258,157 @@ video {
   font-size: 0.95rem;
   line-height: 1.5;
   white-space: pre-line;
+}
+
+/* Pantalla Flotante Game Over */
+.end-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 7, 6, 0.85);
+  backdrop-filter: blur(14px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.end-screen-card {
+  background: rgba(15, 23, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 32px 28px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+}
+
+.end-title {
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #ef4444;
+  text-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+  margin-bottom: 2px;
+}
+
+.end-title.victory {
+  color: #00f5a0;
+  text-shadow: 0 0 25px rgba(0, 245, 160, 0.5);
+}
+
+.end-sub {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+}
+
+.end-scores-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.end-score-box {
+  flex: 1;
+  padding: 16px 10px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.box-you {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.box-rival {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.box-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.box-score {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.box-elo {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.vs-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #475569;
+}
+
+.end-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-end {
+  width: 100%;
+  padding: 14px;
+  border-radius: 99px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-find {
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.4);
+  color: #00d2ff;
+}
+
+.btn-find:hover {
+  background: rgba(0, 210, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-rematch {
+  background: rgba(0, 245, 160, 0.12);
+  border: 1px solid rgba(0, 245, 160, 0.4);
+  color: #00f5a0;
+}
+
+.btn-rematch:hover {
+  background: rgba(0, 245, 160, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-menu {
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+.btn-menu:hover {
+  background: rgba(168, 85, 247, 0.25);
+  transform: translateY(-2px);
 }
