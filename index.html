@@ -27,7 +27,7 @@
 
   <div class="control-panel">
     <div id="status" class="status-box">Cargando cámara local...</div>
-    <div id="countdown-overlay" class="countdown-hidden">5</div>
+    <div id="countdown-overlay" class="countdown-overlay">5</div>
     <button id="btnDuelo" onclick="iniciarBusqueda()">⚡ BUSCAR RIVAL Y PELEAR ⚡</button>
   </div>
 
@@ -39,7 +39,6 @@
       </div>
       <div class="video-wrapper">
         <video id="localVideo" autoplay playsinline muted></video>
-        <div class="scanline"></div>
       </div>
     </div>
 
@@ -52,7 +51,6 @@
       </div>
       <div class="video-wrapper">
         <video id="remoteVideo" autoplay playsinline></video>
-        <div class="scanline"></div>
       </div>
     </div>
   </div>
@@ -62,8 +60,36 @@
     <div id="ia-explanation">Presiona el botón para conectar con un rival.</div>
   </div>
 
+  <!-- Pantalla Final Game Over -->
+  <div id="end-screen" class="end-screen-overlay" style="display: none;">
+    <div class="end-screen-card">
+      <h1 id="end-status-title" class="end-title">BRUTALIZED</h1>
+      <p id="end-status-sub" class="end-sub">BY RIVAL</p>
+
+      <div class="end-scores-container">
+        <div class="end-score-box box-you">
+          <span class="box-label">YOU</span>
+          <span id="end-score-you" class="box-score">3.0</span>
+          <span id="end-elo-you" class="box-elo">-21 ELO</span>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="end-score-box box-rival">
+          <span id="end-label-rival" class="box-label">RIVAL</span>
+          <span id="end-score-rival" class="box-score">4.6</span>
+          <span id="end-elo-rival" class="box-elo">+19 ELO</span>
+        </div>
+      </div>
+
+      <div class="end-actions">
+        <button class="btn-end btn-find" onclick="actionFindMatch()">FIND NEW MATCH</button>
+        <button class="btn-end btn-rematch" onclick="actionRematch()">REMATCH</button>
+        <button class="btn-end btn-menu" onclick="actionReturnMenu()">RETURN TO MENU</button>
+      </div>
+    </div>
+  </div>
+
   <canvas id="canvas" style="display:none;"></canvas>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>
