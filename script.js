@@ -1,4 +1,4 @@
-// Exposición de funciones al entorno global
+// Exposición de funciones globales
 window.guardarUsuario = function() {
   const input = document.getElementById('usernameInput').value.trim();
   if (input !== "") {
@@ -13,6 +13,23 @@ window.cerrarSesion = function() {
   document.getElementById('profile-section').style.display = 'none';
   miNombre = "Jugador 1";
   document.getElementById('nameP1').innerText = "JUGADOR 1 (TÚ)";
+};
+
+window.actionFindMatch = function() {
+  document.getElementById('end-screen').style.display = 'none';
+  iniciarBusqueda();
+};
+
+window.actionRematch = function() {
+  document.getElementById('end-screen').style.display = 'none';
+  resetearEfectos();
+  iniciarConteoDuelo();
+};
+
+window.actionReturnMenu = function() {
+  document.getElementById('end-screen').style.display = 'none';
+  resetearEfectos();
+  statusBox.innerText = "SISTEMA LISTO: Haz clic en el botón para buscar rival.";
 };
 
 const localVideo = document.getElementById('localVideo');
@@ -47,7 +64,7 @@ function cargarPerfil() {
 
 cargarPerfil();
 
-// 1. Inicialización de cámara
+// 1. Inicialización de Cámara
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => {
     miStream = stream;
@@ -58,7 +75,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     statusBox.innerText = "ERROR: Permite el acceso a la cámara en tu navegador.";
   });
 
-// 2. Multijugador PeerJS
+// 2. PeerJS Conexión Multijugador
 window.iniciarBusqueda = function() {
   statusBox.innerText = "BUSCANDO SALA DE DUELO...";
   resetearEfectos();
@@ -118,7 +135,7 @@ function conectarComoJugador2() {
   });
 }
 
-// 3. Temporizador de pantalla
+// 3. Temporizador de Duelo
 function iniciarConteoDuelo() {
   let tiempo = 5;
   countdownOverlay.classList.add('active');
@@ -138,7 +155,7 @@ function iniciarConteoDuelo() {
   }, 1000);
 }
 
-// 4. Analizador de Píxeles local
+// 4. Analizador de Píxeles Local
 function analizarPixeles(videoElem) {
   canvas.width = 160;
   canvas.height = 120;
@@ -161,7 +178,7 @@ function analizarPixeles(videoElem) {
   return Math.min(95, Math.max(15, Math.floor(factorCaos + Math.random() * 40 + 20)));
 }
 
-// 5. Evaluación e integración de nombres
+// 5. Evaluación de Ganador
 function evaluarDuelo() {
   const p1 = analizarPixeles(localVideo);
   const p2 = remoteVideo.srcObject ? analizarPixeles(remoteVideo) : Math.floor(Math.random() * 60 + 20);
@@ -183,17 +200,49 @@ function evaluarDuelo() {
   }, 1200);
 }
 
-// 6. Veredicto final
+// 6. Veredicto Final y Carga del Modal Game Over
 function procesarResultado(texto, p1, p2, ganadorNombre) {
   iaExplanation.innerText = texto;
   score1.innerText = `${p1}/100`;
   score2.innerText = `${p2}/100`;
 
-  if (p1 >= p2) {
+  const soyGanador = p1 >= p2;
+
+  const endTitle = document.getElementById('end-status-title');
+  const endSub = document.getElementById('end-status-sub');
+  const scoreYou = document.getElementById('end-score-you');
+  const scoreRival = document.getElementById('end-score-rival');
+  const eloYou = document.getElementById('end-elo-you');
+  const eloRival = document.getElementById('end-elo-rival');
+  const labelRival = document.getElementById('end-label-rival');
+
+  scoreYou.innerText = (p1 / 20).toFixed(1);
+  scoreRival.innerText = (p2 / 20).toFixed(1);
+  labelRival.innerText = rivalNombre.toUpperCase();
+
+  if (soyGanador) {
+    endTitle.innerText = "VICTORY";
+    endTitle.classList.add('victory');
+    endSub.innerText = `OVER ${rivalNombre.toUpperCase()}`;
+    eloYou.innerText = "+19 ELO";
+    eloYou.style.color = "#00f5a0";
+    eloRival.innerText = "-21 ELO";
+    eloRival.style.color = "#ef4444";
     marcarGanador(card1, `¡${ganadorNombre.toUpperCase()} GANA EL DUELO!`);
   } else {
+    endTitle.innerText = "BRUTALIZED";
+    endTitle.classList.remove('victory');
+    endSub.innerText = `BY ${rivalNombre.toUpperCase()}`;
+    eloYou.innerText = "-21 ELO";
+    eloYou.style.color = "#ef4444";
+    eloRival.innerText = "+19 ELO";
+    eloRival.style.color = "#00f5a0";
     marcarGanador(card2, `¡${ganadorNombre.toUpperCase()} GANA EL DUELO!`);
   }
+
+  setTimeout(() => {
+    document.getElementById('end-screen').style.display = 'flex';
+  }, 1000);
 }
 
 function marcarGanador(cardGanadora, titulo) {
